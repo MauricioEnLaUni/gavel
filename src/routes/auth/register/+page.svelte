@@ -35,15 +35,12 @@
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                     </div>
-                    <a class="text-sm font-bold underline underline-offset-4 text-primary hover:text-accent" href="auth/password-restore">
-                        Forgot your password?
-                    </a>
                 </div>
                 <button
                     class="btn btn-secondary font-black"
                     type="submit"
                 >
-                    LOGIN
+                    REGISTER
                 </button>
             </form>
         </div>

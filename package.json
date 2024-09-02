@@ -30,6 +30,7 @@
     "postcss": "^8.4.38",
     "prettier": "^3.1.1",
     "prettier-plugin-svelte": "^3.1.2",
+    "sass-embedded": "^1.77.8",
     "svelte": "^5.0.0-next.1",
     "svelte-adapter-bun": "^0.5.2",
     "svelte-check": "^3.6.0",
@@ -45,6 +46,7 @@
   "dependencies": {
     "@msgpack/msgpack": "^3.0.0-beta2",
     "clsx": "^2.1.1",
+    "date-picker-svelte": "^2.13.0",
     "pg": "^8.12.0",
     "tailwind-merge": "^2.5.2",
     "zod": "^3.23.8"
