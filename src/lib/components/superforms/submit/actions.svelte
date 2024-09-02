@@ -1,8 +1,6 @@
 <script lang="ts">
-    import type { SuperForm, FormPathLeaves } from "sveltekit-superforms";
-
-    import SubmitButton from "./SubmitButton.svelte";
-    import SearchButton from "./SearchButton.svelte";
+    import SubmitButton from "./submitButton.svelte";
+    import SearchButton from "./searchButton.svelte";
     import type { GenT, Leaf } from "$cmp/superforms/types";
 
     const FORM_ACTIONS = {

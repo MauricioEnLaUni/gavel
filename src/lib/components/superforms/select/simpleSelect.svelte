@@ -1,7 +1,7 @@
 <script lang="ts">
     import { formFieldProxy } from "sveltekit-superforms";
     import { cn } from "$lib/utils";
-    import type { SelectOptions } from "$cmp/superforms/Select/types";
+    import type { SelectOptions } from "./types";
     import type { GenT, Leaf } from "$cmp/superforms/types";
 
     export let etiqueta: {
