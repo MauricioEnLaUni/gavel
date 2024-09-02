@@ -1,3 +1,5 @@
+import { i18n } from '$lib/i18n'
+import { sequence } from '@sveltejs/kit/hooks'
 import { PUBLIC_AUTH_COOKIE as authCookie } from "$env/static/public";
 
 import { redirect, type RequestEvent } from "@sveltejs/kit";
@@ -12,7 +14,7 @@ const pathBegins = (
 
 const validaciones = new Map([[1, ["*"]]]);
 
-export async function handle({ event, resolve }) {
+async function handleGuardedRoutes({ event, resolve }: { event: any, resolve: any }) {
     const { request } = event;
     const check = (p: string) => pathBegins(p, event);
 
@@ -55,3 +57,5 @@ export async function handle({ event, resolve }) {
     event.locals.userAgent = request.headers.get("user-agent");
     return await resolve(event);
 }
+
+export const handle = sequence(handleGuardedRoutes,i18n.handle());

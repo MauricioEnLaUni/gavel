@@ -1,0 +1,12 @@
+{
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+
+    "login_link": "Login",
+    "register_link": "Register",
+
+    "an_error_occurred": "An error has occurred",
+
+    "register_username_required": "*",
+    "register_username_minimum_length": "*",
+    "register_username_maximum_length": "*"
+}

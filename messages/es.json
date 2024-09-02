@@ -1,0 +1,14 @@
+{
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+
+    "login_link": "Acceder",
+    "register_link": "Registro",
+
+    "an_error_occurred": "Ha ocurrido un error",
+
+    "go_home": "Regresar a inicio",
+
+    "register_username_required": "Debe escribir un nombre de usuario",
+    "register_username_minimum_length": "El usuario debe tener al menos 3 caracteres",
+    "register_username_maximum_length": "El nombre de usuario debe ser menor de 16 caracteres"
+}

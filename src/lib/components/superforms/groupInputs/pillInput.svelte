@@ -90,7 +90,7 @@
             line-height: 20px;
             text-align: center;
             text-transform: uppercase;
-            font-size: 14px;
+            font-size: 9px;
             font-weight: 700;
             color: white;
             background-color: #37474f;
@@ -100,7 +100,7 @@
     }
     .toggle--on {
         &:after {
-            content: "SI";
+            content: "YES";
             border-radius: 50px 5px 5px 50px;
             color: #66bb6a;
         }

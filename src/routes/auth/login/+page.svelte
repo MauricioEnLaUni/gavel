@@ -12,20 +12,20 @@
                 <h1 class="text-3xl font-bold text-neutral-900">Login</h1>
             </div>
             <form class="grid gap-4" method="POST" action="?/login">
-                {#each fields as [valor, { label, input }]}
+                {#each fields as [value, { label, input }]}
                     <div class="grid gap-1">
                         <label
                             class="label font-black"
                             {...label}
-                            for={valor}
+                            for={value}
                         >
-                            {valor.slice(0,1).toUpperCase() + valor.slice(1)}
+                            {value.slice(0,1).toUpperCase() + value.slice(1)}
                         </label>
                         <input
                             class="input border-primary/60"
                             {...input}
-                            id={valor}
-                            name={valor}
+                            id={value}
+                            name={value}
                             required
                         />
                     </div>

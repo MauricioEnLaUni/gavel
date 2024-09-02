@@ -1,6 +1,7 @@
 <script lang="ts">
     import { page } from "$app/stores";
     import { Icon, casa as icon } from "$cmp/icons";
+    import * as m from "$lib/paraglide/messages";
 
     const error = $page.error;
 
@@ -16,11 +17,11 @@
     class="flex h-screen flex-col items-center justify-center bg-neutral font-mono">
     <h1 class="text-9xl font-bold text-primary-content">{status}</h1>
     <h2 class="mt-4 text-2xl text-primary-content">{title}</h2>
-    <p class="text-muted-foreground mt-2">Ha ocurrido un error</p>
+    <p class="text-muted-foreground mt-2">{m.an_error_occurred()}</p>
     <a
         class="mt-8 bg-accent hover:bg-foreground font-bold py-2 px-4 rounded flex gap-x-4"
         href="/">
         <Icon {icon} />
-        Regresar a Inicio
+        {m.go_home()}
     </a>
 </main>

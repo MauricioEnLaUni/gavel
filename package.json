@@ -15,14 +15,17 @@
     "test:unit": "vitest"
   },
   "devDependencies": {
+    "@inlang/paraglide-js": "1.11.2",
     "@playwright/test": "^1.28.1",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@types/eslint": "^8.56.7",
     "@types/node": "^20.14.9",
+    "@types/nodemailer": "^6.4.15",
     "@types/pg": "^8.11.8",
     "autoprefixer": "^10.4.19",
+    "daisyui": "^4.12.10",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^2.36.0",
@@ -44,9 +47,10 @@
   },
   "type": "module",
   "dependencies": {
+    "@inlang/paraglide-sveltekit": "0.11.0",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "clsx": "^2.1.1",
-    "date-picker-svelte": "^2.13.0",
+    "nodemailer": "^6.9.14",
     "pg": "^8.12.0",
     "tailwind-merge": "^2.5.2",
     "zod": "^3.23.8"

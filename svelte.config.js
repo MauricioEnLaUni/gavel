@@ -14,6 +14,7 @@ const config = {
             "$infra/*": "./src/lib/server/infrastructure/*",
             "$server/*": "./src/lib/server/*",
             "$stores/*": "./src/lib/stores/*",
+            "$msg": "./src/lib/paraglide/messages.js",
         },
         csp: {
             mode: "hash",
