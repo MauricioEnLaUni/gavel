@@ -1,0 +1,1 @@
+export { fastHash } from "./fastHash";
