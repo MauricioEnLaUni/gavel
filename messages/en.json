@@ -26,6 +26,7 @@
     "register_tag_terms": "Accept terms of service",
 
     "register_username_conflict": "Username is already in use",
+    "register_email_conflict": "Email is already in use",
 
     "register_submit": "REGISTER",
     "email_confirmation_subject": "Email Confirmation",
@@ -41,5 +42,5 @@
     "account_verification_timeout": "Your verification token has timed out",
     "resend_verification_email": "Resend verification email",
 
-    "malformed_request": "Missing parameters",
+    "malformed_request": "Missing parameters"
 }

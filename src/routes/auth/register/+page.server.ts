@@ -33,12 +33,16 @@ export const actions = {
         try {
             await pool.query("BEGIN;");
             const conflictResult = await pool.query(
-                "SELECT exists(SELECT 1 FROM auth.active_users WHERE username = $1);",
-                [username],
+                "SELECT CASE WHEN username = $1 THEN 1 WHEN email = $2 THEN 2 ELSE 0 END FROM auth.user conflict;",
+                [username,email],
             );
+            const { conflict } = conflictResult.rows[0];
 
-            if (conflictResult.rows[0].exists) {
-                fail(409,m.register_username_conflict());
+            if (conflict) {
+                fail(409,
+                    conflict === 1 ?
+                        m.register_username_conflict() :
+                        m.register_email_conflict());
             }
 
             const ip = locals.ip;

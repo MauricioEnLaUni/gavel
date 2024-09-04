@@ -50,6 +50,7 @@
     "@inlang/paraglide-sveltekit": "0.11.0",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
     "nodemailer": "^6.9.14",
     "pg": "^8.12.0",
     "tailwind-merge": "^2.5.2",

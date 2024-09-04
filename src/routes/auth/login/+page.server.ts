@@ -1,42 +1,39 @@
 import { PUBLIC_AUTH_COOKIE as authCookie } from "$env/static/public";
-import { error, redirect } from "@sveltejs/kit";
+import { error, fail, redirect } from "@sveltejs/kit";
 
 import { Access as pg } from "$infra/pg";
 import { encode } from "@msgpack/msgpack";
-import { verify } from "$server/crypto/index";
-
-async function parseRequest(request: Request) {
-    const data = await request.formData();
-    const usuario = String(data.get("usuario")).replace(/[^a-zA-Z0-9]/g, "");
-    const password = encodeURIComponent(String(data.get("password")));
-
-    const pool = await pg.getPool();
-    return {
-        usuario,
-        password,
-        pool,
-    };
-}
+import { verify } from "$server/crypto";
 
 export const actions = {
     login: async ({ cookies, request, locals }) => {
-        const { usuario, password, pool } = await parseRequest(request);
+        const data = await request.formData();
+        const username = String(data.get("username")).replace(/[^a-zA-Z0-9]/g, "");
+        const password = encodeURIComponent(String(data.get("password")));
+
+        const pool = await pg.getPool();
 
         try {
             const data = await pool.query(
-                "SELECT id, tipo, hash, unidad FROM informatica.usuarios_activos WHERE usuario = $1;",
-                [usuario],
+                "SELECT id, type, hash, gen_random_uuid() s FROM auth.active_users WHERE username = $1 LIMIT 1;",
+                [username],
             );
-            if (data.rows.length < 1)
-                error(404, "No se ha encontrado el usuario");
+            if (data.rows.length !== 1)
+                return fail(0x0405);
 
-            const { id, tipo, hash, unidad: adscripcion } = data.rows[0];
+            const { id, tipo, hash, s: sessionId } = data.rows[0];
             if (!(await verify(password, hash))) {
-                error(400, "Password incorrecto");
+                return fail(0x0406);
             }
             const { ip, userAgent } = locals;
-            const crearSesion = await pool.query(
-                "INSERT INTO informatica.sesion(clave_usuario,ip,user_agent) VALUES($1,$2,$3) RETURNING *;",
+            const session = {
+                id,
+                session: sessionId,
+                created: new Date(),
+                
+            };
+            const createdSession = await pool.query(
+                "INSERT INTO auth.session(user_id,ip,user_agent,hash) VALUES($1,$2,$3,$4);",
                 [id, ip, userAgent],
             );
             if (crearSesion.rows.length < 1)

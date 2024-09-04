@@ -55,6 +55,11 @@ You can preview the production build with `npm run preview`.
 ### 0x0400 Authentication Errors
 ---
 - 0x0401 - User is disabled
+- 0x0402 - Wrong email authorization code
+- 0x0403 - Expired email authorization code
+- 0x0404 - Username not found
+- 0x0405 - Username not found
+- 0x0406 - Wrong Password
 
 #### 0x00100000 - Database Errors
 ---
