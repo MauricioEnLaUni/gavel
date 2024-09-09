@@ -1,22 +1,19 @@
-import { i18n } from '$lib/i18n'
-import { sequence } from '@sveltejs/kit/hooks'
+import { i18n } from "$lib/i18n";
+import { sequence } from "@sveltejs/kit/hooks";
 import { PUBLIC_AUTH_COOKIE as authCookie } from "$env/static/public";
 
-import { redirect, type RequestEvent } from "@sveltejs/kit";
+import { redirect } from "@sveltejs/kit";
 import { decode } from "@msgpack/msgpack";
 import { Access as pg } from "$infra/pg";
 import type { AppSession } from "$lib/stores/auth";
+import { beginsWith } from "$utl/path";
 
-const pathBegins = (
-    p: string,
-    event: RequestEvent
-) => event.url.pathname.startsWith(p);
-
-const validaciones = new Map([[1, ["*"]]]);
+// TODO: Grant checking
+const validations = new Map([[1, ["*"]]]);
 
 async function handleGuardedRoutes({ event, resolve }: { event: any, resolve: any }) {
     const { request } = event;
-    const check = (p: string) => pathBegins(p, event);
+    const check = (p: string) => beginsWith(p, event);
 
     const cookie = event.cookies.get(authCookie);
 
@@ -38,7 +35,7 @@ async function handleGuardedRoutes({ event, resolve }: { event: any, resolve: an
             ...pg.baseParams,
             process: ({ rows }) => (rows as { e: boolean }[])[0].e
         })) as boolean;
-        const grants = validaciones.get(category);
+        const grants = validations.get(category);
         if (
             !sessionSearch ||
             expires < new Date() ||

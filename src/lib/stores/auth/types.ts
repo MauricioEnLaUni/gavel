@@ -4,8 +4,11 @@ export type AppSession = {
 
     session: string;
     expires: Date;
-    created: Date;
+    period: {
+        created: Date;
+        expired: Date | null;
+    }
 
     ip: string | undefined | null;
-    user_agent: string | undefined | null;
+    userAgent: string | undefined | null;
 };

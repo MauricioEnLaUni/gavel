@@ -107,13 +107,18 @@ export class Access {
         const pool = await Access.getPool(db);
 
         try {
+            await pool.query("BEGIN;");
             const current = process(
                 await pool.query(query, params)
             );
-            return next === null ?
-                current :
-                await this.sequence({ ...next, params: [current] });
+            const recurse = next === null;
+            if (!recurse) {
+                await pool.query("COMMIT;");
+                return current;
+            }
+            return await this.sequence({ ...next, params: [current] });
         } catch (e) {
+            await pool.query("ROLLBACK;");
             err(e);
         } finally {
             pool.release();

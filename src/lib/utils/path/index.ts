@@ -1,0 +1,1 @@
+export { beginsWith } from "./beginsWith";
