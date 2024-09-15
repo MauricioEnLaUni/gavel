@@ -14,9 +14,4 @@
     export let superform: GenT;
 </script>
 
-<svelte:component
-    this={SELECTS[variant]}
-    {name}
-    {superform}
-    {...$$restProps}
-/>
+<svelte:component this={SELECTS[variant]} {name} {superform} {...$$restProps} />

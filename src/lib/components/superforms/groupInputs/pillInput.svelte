@@ -1,7 +1,7 @@
 <script lang="ts">
     import { formFieldProxy } from "sveltekit-superforms";
     import { cn } from "$utl/cn";
-    import type { Leaf,GenT } from "$cmp/superforms/types";
+    import type { Leaf, GenT } from "$cmp/superforms/types";
 
     export let container: any = {};
     export let etiqueta: any = {};
@@ -39,19 +39,33 @@
     }
 
     $value = toggled;
-    $: state = (toggled && $value === undefined) || $value ? "toggle--on" : "toggle--off";
+    $: state =
+        (toggled && $value === undefined) || $value
+            ? "toggle--on"
+            : "toggle--off";
 </script>
 
-<div {...container} class={cn("flex w-full justify-center text-center",container.classes)}>
+<div
+    {...container}
+    class={cn("flex w-full justify-center text-center", container.classes)}>
     <div class="flex flex-wrap justify-center">
         <button
             {...etiqueta}
             type="button"
-            class={cn("mb-1 w-full font-bold",etiqueta.classes)}
-            on:click|preventDefault={setMoving}
-        >{etiqueta.children}</button>
-        <button id={`${name}-sino-toggle`} class={`togs ${state} w-full cursor-pointer`} on:click|preventDefault={setMoving}>
-            <input {...input} type="checkbox" id={`${name}-toggle`} {name} class="hidden" bind:checked={$value} {...$constraints} />
+            class={cn("mb-1 w-full font-bold", etiqueta.classes)}
+            on:click|preventDefault={setMoving}>{etiqueta.children}</button>
+        <button
+            id={`${name}-sino-toggle`}
+            class={`togs ${state} w-full cursor-pointer`}
+            on:click|preventDefault={setMoving}>
+            <input
+                {...input}
+                type="checkbox"
+                id={`${name}-toggle`}
+                {name}
+                class="hidden"
+                bind:checked={$value}
+                {...$constraints} />
         </button>
     </div>
 </div>

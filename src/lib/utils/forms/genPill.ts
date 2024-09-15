@@ -1,7 +1,14 @@
 import type { FormFieldCatalog } from "$cmp/superforms/types";
 import { formatHTMLTag } from "./formatHTML";
 
-export function genPill(children: string, container: any = {}, etiqueta: any = {}, input: any = {}, toggled: boolean = true, tag?: string) {
+export function genPill(
+    children: string,
+    container: any = {},
+    etiqueta: any = {},
+    input: any = {},
+    toggled: boolean = true,
+    tag?: string,
+) {
     const name = tag ?? formatHTMLTag(children);
 
     return {

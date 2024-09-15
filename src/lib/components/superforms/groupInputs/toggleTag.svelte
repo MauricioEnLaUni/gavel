@@ -1,7 +1,7 @@
 <script lang="ts">
     import { formFieldProxy } from "sveltekit-superforms";
     import { cn } from "$lib/utils/cn";
-    import type { Leaf,GenT } from "$cmp/superforms/types";
+    import type { Leaf, GenT } from "$cmp/superforms/types";
 
     export let container: any = {};
     export let etiqueta: any;
