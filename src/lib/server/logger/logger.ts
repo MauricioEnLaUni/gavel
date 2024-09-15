@@ -1,4 +1,5 @@
-import { createLogger,transports,format } from "winston";
+import { createLogger, transports, format } from "winston";
+import { compress } from "$utl/node/zlib";
 
 export class Logger {
     private static readonly LEVELS = {
@@ -11,39 +12,32 @@ export class Logger {
         SILLY: "silly",
     };
 
-    private static readonly logger = createLogger({
+    public static readonly logger = createLogger({
         level: this.LEVELS.DEBUG,
         format: format.combine(
             format.errors({
                 stack: true,
             }),
             format.timestamp(),
-            format.json(),
+            format.printf(info => {
+                const {
+                    auth,
+                    sessionId,
+                    userId,
+                    startTime,
+                    endTime,
+                    method,
+                    searchParams,
+                    formData,
+                    requestId,
+                    lang,
+                    status,
+                    errorId,
+                } = info.message;
+
+                return `${info.timestamp} [${info.level}]: auth:${auth ? "1" : "0"} user:${userId ?? "ᛈ"} session:${sessionId || "ᚨ"} - method:[${method}] - Search:${searchParams} Form:${formData ? compress(formData) : "ᛗ"} Time:${(startTime as Date).toISOString()} - ${(endTime as Date).toISOString()} request:${requestId} lang:${lang} http:${status} error-id:${errorId || "ᛯ"}`;
+            }),
         ),
-        transports: [
-            new transports.Console(),
-        ]
+        transports: [new transports.Console()],
     });
-
-    public static info(message: string, payload: string, route: string, method: string, start: string, end: string) {
-        const options = {
-            payload,
-            route,
-            method,
-            start,
-            end
-        }
-        this.logger.info(message,options);
-    }
-
-    public static error(message: string, payload: string, route: string, method: string, start: string, end: string) {
-        const options = {
-            payload,
-            route,
-            method,
-            start,
-            end
-        }
-        this.logger.error(message,options);
-    }
 }
