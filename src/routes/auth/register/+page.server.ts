@@ -1,20 +1,35 @@
 import * as m from "$lib/paraglide/messages";
 
-import { PRIVATE_EMAIL_USER as emailUser, PRIVATE_EMAIL_PASSWORD as emailPassword } from "$env/static/private";
-
 import { zod } from "sveltekit-superforms/adapters";
 import { Access as pg } from "$infra/pg";
 
 import { superValidate } from "sveltekit-superforms";
-import { registerSchema } from "./schema";
 import { fail, redirect } from "@sveltejs/kit";
 import { hash } from "$server/crypto";
 import { encode } from "@msgpack/msgpack";
 
-import { createTransport, type TransportOptions } from "nodemailer";
+import { EmailTransport as transport } from "$server/services/mailer";
+import { getSignUpConfirmationOptions as g } from "$server/services/verificationEmail";
+import {
+    registerPageSchema as schema,
+    registerPageConflict as conflict,
+    registerPageInsert as insert,
+    sanitizeEmail,
+    sanitizeUsername,
+} from "$def/pages";
+import { authErrors, databaseErrors, httpCodes as h } from "$def/errors";
 
 export async function load() {
-    const form = await superValidate(zod(registerSchema));
+    const form = await superValidate(zod(schema));
+
+    const test = (await pg.singleQuery(
+        {
+            query: "SELECT (period).starting, (period).ending FROM auth.session;",
+            params: [],
+        },
+        pg.authParams,
+    )) as any[];
+    console.log(test);
 
     return {
         form,
@@ -24,29 +39,33 @@ export async function load() {
 export const actions = {
     default: async ({ request, locals }) => {
         const data = await request.formData();
-        const username = String(data.get("username"));
+        const username = sanitizeUsername(data.get("username"));
         const password = encodeURIComponent(String(data.get("password")));
-        const email = String(data.get("email"));
+        const email = sanitizeEmail(String(data.get("email")));
+
+        if (email === null || username !== data.get("username")) {
+            return fail(h.BAD_REQUEST, { id: authErrors.INVALID_CHARACTERS });
+        }
 
         const pool = await pg.getPool(pg.APP_AUTH);
 
         try {
             await pool.query("BEGIN;");
-            const conflictResult = await pool.query(
-                "SELECT CASE WHEN username = $1 THEN 1 WHEN email = $2 THEN 2 ELSE 0 END FROM auth.user conflict;",
-                [username,email],
-            );
-            const { conflict } = conflictResult.rows[0];
+            const conflictResult = await pool.query(conflict, [
+                username,
+                email,
+            ]);
 
-            if (conflict) {
-                fail(409,
-                    conflict === 1 ?
-                        m.register_username_conflict() :
-                        m.register_email_conflict());
+            if (conflictResult && conflictResult.rows.length !== 0) {
+                const { username: u } = conflictResult.rows[0];
+                const result =
+                    u === username
+                        ? authErrors.USERNAME_CONFLICT
+                        : authErrors.EMAIL_CONFLICT;
+                locals.errorId = result;
+                return fail(h.CONFLICT, { id: result });
             }
-
-            const ip = locals.ip;
-            const userAgent = locals.userAgent;
+            const { ip, userAgent } = locals;
 
             const hashedPassword = await hash(password);
             const payload = Buffer.from(
@@ -58,40 +77,35 @@ export const actions = {
                 }),
             ).toString("base64");
 
-            const result = await pool.query(
-                "SELECT id FROM auth.create_user($1,$2,$3,$4) AS id;",
-                [hashedPassword,username,email,payload],
-            );
-            if (!result.rows[0].clave) {
-                fail(500, m.undefined_database_error());
+            const result = await pool.query(insert, [
+                hashedPassword,
+                username,
+                email,
+                payload,
+            ]);
+            if (!result.rows[0].id) {
+                return fail(h.INTERNAL_SERVER_ERROR, {
+                    id: databaseErrors.GENERIC_FAIL,
+                });
             }
             const { id } = result.rows[0];
 
-            const transport = createTransport({
-                host: "smtp.hostinger.com",
-                port: 465,
-                secure: true,
-                auth: {
-                    user: emailUser,
-                    pass: emailPassword,
-                }
-            } as TransportOptions);
-
-            await transport.sendMail({
-                from: "'Admin' <admin@chazaro.click>",
-                to: email,
-                subject: m.email_confirmation_subject(),
-                html: m.email_confirmation_body().replace("ᛟ", id),
-            });
+            await transport.send(g(email, m.email_confirmation_subject(), id));
             await pool.query("COMMIT;");
-        } catch(e) {
+        } catch (e) {
             console.error(e);
             await pool.query("ROLLBACK;");
-            fail(500, m.undefined_database_error());
+            const id = databaseErrors.GENERIC_FAIL;
+
+            locals.errorId = id;
+            return fail(h.INTERNAL_SERVER_ERROR, { id });
         } finally {
             pool.release();
         }
 
-        throw redirect(302, `/auth/verify-account?username=${username}&email=${email}`);
+        throw redirect(
+            h.PERMANENT_REDIRECT,
+            `/auth/verify-account?username=${username}&email=${email}`,
+        );
     },
-}
+};

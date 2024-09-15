@@ -1,77 +1,104 @@
 import { addMinutes } from "date-fns";
-import { error, fail } from "@sveltejs/kit";
+import { error, fail, redirect } from "@sveltejs/kit";
 import { Access as pg } from "$infra/pg";
-import type { AppSession } from "$stores/auth";
-import { fastHash } from "$server/crypto";
-import { setAuthCookie } from "$server/auth/setCookie";
+import {
+    CODE_TOLERANCE_MINUTES,
+    setAuthCookie,
+    USER_TYPE,
+    type AppSession,
+} from "$server/auth";
+import { sanitize } from "$def/pages";
+import { authErrors, databaseErrors, httpCodes as h } from "$def/errors";
+import {
+    CREATE_SESSION,
+    DISABLE_EMAIL_AUTHORIZATION,
+    ENABLE_USER_ACCOUNT,
+    GRANT_USER_PERMISSIONS,
+    USERNAME_EMAIL_CONFLICT,
+} from "$server/queries";
 
 export async function load({ url, cookies, locals }) {
-    const code = String(url.searchParams.get("code"));
+    const code = sanitize(url.searchParams.get("code"), /[^A-z0-9-]/g);
+
+    if (code !== url.searchParams.get("code")) {
+        return fail(h.BAD_REQUEST, { id: authErrors.INVALID_CHARACTERS });
+    }
 
     if (code === "") {
-        return fail(0x0300);
+        return fail(h.BAD_REQUEST, { id: authErrors.NO_USER_ACTIVATION_CODE });
     }
+
     const pool = await pg.getPool(pg.APP_AUTH);
 
     try {
-        console.log(`Requesting user login check start: ${new Date().toString()}`);
-        const result = await pool.query(
-            "SELECT user_id,created FROM auth.email_authorization WHERE used IS NULL AND email_authorization_id = $1 LIMIT 1;",
-            [code]);
+        const result = await pool.query(USERNAME_EMAIL_CONFLICT, [code]);
         if (!result || result.rows.length !== 1) {
-            return fail(0x0402);
-        } else if (addMinutes(result.rows[0].created, 12) < new Date()) {
-            return fail(0x0407);
+            return fail(h.UNAUTHORIZED, {
+                id: authErrors.NO_USER_ACTIVATION_CODE,
+            });
+        } else if (
+            addMinutes(result.rows[0].created, CODE_TOLERANCE_MINUTES) <
+            new Date()
+        ) {
+            return fail(h.FORBIDDEN, {
+                id: authErrors.EXPIRED_USER_ACTIVATION_CODE,
+            });
         }
 
         const { user_id: userId } = result.rows[0];
-        const { ip,userAgent } = locals;
+        const { ip, userAgent } = locals;
         await pool.query("BEGIN;");
 
-        const [sessionResult] = await Promise.all([
-            pool.query("INSERT INTO auth.session(user_id,ip,user_agent,hash) VALUES($1,$2,$3) RETURNING session_id, expires, period;",[userId,ip,userAgent]),
-            pool.query("UPDATE auth.email_authorization SET used = now() WHERE email_authorization_id = $1;", [code]),
-            pool.query("INSERT INTO auth.user_log(user_id,action,data) VALUES($1,'ENABLE',NULL);", [userId]),
-            pool.query("UPDATE auth.user SET type = 'USER' WHERE username = $1;",[userId])]);
+        const [sessionResult] = await Promise.all(
+            [
+                CREATE_SESSION,
+                DISABLE_EMAIL_AUTHORIZATION,
+                ENABLE_USER_ACCOUNT,
+                GRANT_USER_PERMISSIONS,
+            ].map((e, index) => {
+                const params = index > 0 ? [userId] : [userId, ip, userAgent];
+                return pool.query(e, params);
+            }),
+        );
 
         if (!sessionResult || sessionResult.rows?.length !== 1) {
             await pool.query("ROLLBACK;");
-            return fail(0x0102);
+            return fail(h.INTERNAL_SERVER_ERROR, {
+                id: databaseErrors.GENERIC_FAIL,
+            });
         }
-        const { session_id:sessionId,expires,period } = sessionResult.rows[0];
-        // TODO: Replace by a real logging
-        console.log(`Enabling user start: ${new Date().toString()}`);
+        const {
+            session_id: sessionId,
+            expires,
+            created,
+            expired,
+        } = sessionResult.rows[0];
+
         const session: AppSession = {
             id: userId,
-            category: 1,
-            session:sessionId,
+            category: USER_TYPE.STUDENT,
+            session: sessionId,
             expires,
-            period: {
-                created: period.created,
-                expired: period.expired,
-            },
+            created,
+            expired,
             ip,
             userAgent,
         };
-        await pool.query(
-            "INSERT INTO auth.session_hash(session_id,hash) VALUES($1,$2);",
-            [sessionId,fastHash(session)]);
-        setAuthCookie(cookies,session);
-
-        return {
-            status: 200,
-            code: 0x0408,
-        };
-    } catch(e) {
+        setAuthCookie(cookies, session);
+        await pool.query("COMMIT;");
+    } catch (e) {
         console.error(e);
-        error(0x0F01);
+        await pool.query("ROLLBACK;");
+        const eId = databaseErrors.GENERIC_FAIL;
+        locals.errorId = eId;
+        error(h.INTERNAL_SERVER_ERROR, String(eId));
     } finally {
         pool.release();
     }
+
+    throw redirect(h.MOVED_PERMANENTLY, "/");
 }
 
 export const actions = {
-    default: async () => {
-
-    }
-}
+    default: async () => {},
+};
