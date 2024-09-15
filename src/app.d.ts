@@ -17,7 +17,7 @@ declare global {
             referer: string | undefined | null;
 
             formData: string | undefined | null;
-            errorId: string | undefined | null;
+            errorId: number | undefined | null;
 
             session: string | undefined | null;
             userId: string | undefined | null;

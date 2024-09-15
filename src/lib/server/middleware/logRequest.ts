@@ -1,5 +1,6 @@
 import type { Handle } from "@sveltejs/kit";
 import { Logger } from "$server/logger";
+import { fubarErrors } from "$def/errors";
 
 export const logRequest: Handle = async ({ event, resolve }) => {
     const {
@@ -16,6 +17,8 @@ export const logRequest: Handle = async ({ event, resolve }) => {
 
     const response = await resolve(event);
     const { status } = response;
+    const er =
+        status >= 400 && !errorId ? fubarErrors.BACKEND_ISSUE : undefined;
 
     Logger.logger.info({
         auth: userId && sessionId,
@@ -29,7 +32,7 @@ export const logRequest: Handle = async ({ event, resolve }) => {
         requestId,
         lang: headers.get("accept-language"),
         status,
-        errorId,
+        errorId: errorId ?? er,
     });
 
     return response;

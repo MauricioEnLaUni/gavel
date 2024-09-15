@@ -1,4 +1,4 @@
 import { writable } from "svelte/store";
-import type { ApplicationSession } from "$stores/auth/types";
+import type { AppSession } from "$server/auth";
 
-export const appStore = writable<ApplicationSession | null>(null);
+export const appStore = writable<AppSession | null>(null);

@@ -24,14 +24,18 @@ import {
 } from "$env/static/private";
 import { onError } from "$utl/defaults/onError";
 import { getRows } from "$utl/pg/getRows";
-import type { QueryBaseParams, QueryParams, SequenceParams } from "$infra/pg/types";
+import type {
+    QueryBaseParams,
+    QueryParams,
+    SequenceParams,
+} from "$infra/pg/types";
 
 export class Access {
     public static readonly baseParams = {
         db: 0,
         err: onError,
         process: getRows,
-    }
+    };
 
     private static readonly credentials: {
         user: string;
@@ -40,10 +44,16 @@ export class Access {
         port: number;
         host: string;
     }[] = [
-        [pgAppUser,pgAppPassword,pgAppDatabase,pgAppPort,pgAppHost],
-        [pgStaticsUser,pgStaticsPassword,pgStaticsDatabase,pgStaticsPort,pgStaticsHost,],
-        [pgAuthUser,pgAuthPassword,pgAuthDatabase,pgAuthPort,pgAuthHost],
-    ].map(([user,password,database,port,host]) => ({
+        [pgAppUser, pgAppPassword, pgAppDatabase, pgAppPort, pgAppHost],
+        [
+            pgStaticsUser,
+            pgStaticsPassword,
+            pgStaticsDatabase,
+            pgStaticsPort,
+            pgStaticsHost,
+        ],
+        [pgAuthUser, pgAuthPassword, pgAuthDatabase, pgAuthPort, pgAuthHost],
+    ].map(([user, password, database, port, host]) => ({
         user,
         password,
         database,
@@ -55,13 +65,23 @@ export class Access {
     public static readonly APP_STATIC = 1;
     public static readonly APP_AUTH = 2;
 
+    public static readonly appParams = { ...this.baseParams, db: this.APP_DB };
+    public static readonly staticParams = {
+        ...this.baseParams,
+        db: this.APP_STATIC,
+    };
+    public static readonly authParams = {
+        ...this.baseParams,
+        db: this.APP_AUTH,
+    };
+
     public static async getPool(db: number = 0) {
         if (db < 0 || db > this.credentials.length) {
-            throw new Error("An error has occurred in the database\n.Error code: 0x00100001");
+            throw new Error(
+                "An error has occurred in the database\n.Error code: 0x00100001",
+            );
         }
-        return await new pg.Pool(
-            this.credentials[db]
-        ).connect();
+        return await new pg.Pool(this.credentials[db]).connect();
     }
 
     public static async singleQuery(
@@ -73,10 +93,8 @@ export class Access {
 
         const pool = await this.getPool(db);
         try {
-            return process(
-                await pool.query(query, params),
-            );
-        } catch(e) {
+            return process(await pool.query(query, params));
+        } catch (e) {
             err(e);
         } finally {
             pool.release();
@@ -84,35 +102,40 @@ export class Access {
     }
 
     public static async all(
-        each:QueryParams[],
+        each: QueryParams[],
         rest: QueryBaseParams = this.baseParams,
     ) {
         const { db, err, process } = rest;
 
         const pool = await this.getPool(db);
         try {
-            return (await Promise.all(
-                each.map(({ query, params }) => pool.query(query,params))
-            )).map(process);
-        } catch(e) {
+            return (
+                await Promise.all(
+                    each.map(({ query, params }) => pool.query(query, params)),
+                )
+            ).map(process);
+        } catch (e) {
             err(e);
         } finally {
             pool.release();
         }
     }
 
-    public static async sequence(
-        { query, params, db, err, process, next }: SequenceParams
-    ): Promise<unknown> {
+    public static async sequence({
+        query,
+        params,
+        db,
+        err,
+        process,
+        next,
+    }: SequenceParams): Promise<unknown> {
         const pool = await Access.getPool(db);
 
         try {
             await pool.query("BEGIN;");
-            const current = process(
-                await pool.query(query, params)
-            );
-            const recurse = next === null;
-            if (!recurse) {
+            const current = process(await pool.query(query, params));
+
+            if (next === null) {
                 await pool.query("COMMIT;");
                 return current;
             }
