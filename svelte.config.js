@@ -6,7 +6,11 @@ const config = {
     preprocess: vitePreprocess(),
 
     kit: {
-        adapter: adapter(),
+        adapter: adapter({
+            precompress: {
+                brotli: true,
+            },
+        }),
         alias: {
             "$cmp/*": "./src/lib/components/*",
             "$utl/*": "./src/lib/utils/*",

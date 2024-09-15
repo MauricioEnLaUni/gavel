@@ -1,11 +1,17 @@
-import { paraglide } from '@inlang/paraglide-sveltekit/vite'
+import { paraglide } from "@inlang/paraglide-sveltekit/vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vitest/config";
 
 import { resolve } from "path";
 
 export default defineConfig({
-    plugins: [paraglide({ project: './project.inlang', outdir: './src/lib/paraglide' }),sveltekit()],
+    plugins: [
+        paraglide({
+            project: "./project.inlang",
+            outdir: "./src/lib/paraglide",
+        }),
+        sveltekit(),
+    ],
     resolve: {
         alias: {
             $lib: resolve("./src/lib"),
@@ -63,6 +69,6 @@ export default defineConfig({
         },
         environment: "jsdom",
         setupFiles: ["src/lib/vitest-setup.js"],
-        include: ["src/**/*.{test,spec}.{js,ts}"]
-    }
+        include: ["src/**/*.{test,spec}.{js,ts}"],
+    },
 });
