@@ -9,15 +9,25 @@
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${n}`);
         const data = await response.json();
 
-        const abilities = data.abilities.map(({ ability }: { ability: { name: string } }) => ability.name);
+        const abilities = data.abilities.map(
+            ({ ability }: { ability: { name: string } }) => ability.name,
+        );
         const name = data.name;
-        const stats = data.stats.map(({ base_stat, stat }: { base_stat: number; stat: { name: string; url: string; }}) => {
-            return {
+        const stats = data.stats.map(
+            ({
                 base_stat,
-                name: stat.name
-            }
-        });
-        const types = data.types.map(({ type }: { type: { name: string }}) => {
+                stat,
+            }: {
+                base_stat: number;
+                stat: { name: string; url: string };
+            }) => {
+                return {
+                    base_stat,
+                    name: stat.name,
+                };
+            },
+        );
+        const types = data.types.map(({ type }: { type: { name: string } }) => {
             return type.name;
         });
 
@@ -25,8 +35,8 @@
             abilities,
             name,
             stats,
-            types
-        }
+            types,
+        };
     }
 
     $: value = 35;
@@ -39,12 +49,16 @@
     }
 </script>
 
-<div class="flex justify-center w-full min-h-screen items-center">
+<div class="flex min-h-screen w-full items-center justify-center">
     {#await promise}
-        <span class="flex loader"></span>
+        <span class="loader flex"></span>
     {:then text}
         <label class="font-bold">
-            Choose your Pokémon: <input class="pl-8" name="get-pokemon" type="number" bind:value />
+            Choose your Pokémon: <input
+                class="pl-8"
+                name="get-pokemon"
+                type="number"
+                bind:value />
         </label>
         <button on:click={handleClick}>SUBMIT</button>
         {#if text}
@@ -53,8 +67,7 @@
                 alt="Imagen de {text.name}"
                 name={text.name}
                 abilities={text.abilities}
-                types={text.types}
-            />
+                types={text.types} />
         {/if}
     {:catch error}
         <p>Ha ocurrido un error: {error}</p>
@@ -65,7 +78,7 @@
     .loader {
         width: 48px;
         height: 48px;
-        border: 3px dotted #FFF;
+        border: 3px dotted #fff;
         border-radius: 50%;
         display: inline-block;
         position: relative;
@@ -73,7 +86,7 @@
         animation: rotation 2s linear infinite;
     }
     .loader::after {
-        content: '';
+        content: "";
         box-sizing: border-box;
         position: absolute;
         left: 0;
@@ -82,7 +95,7 @@
         bottom: 0;
         margin: auto;
         border-width: 3px;
-        border-color: #FF3D00;
+        border-color: #ff3d00;
         border-style: solid solid dotted;
         width: 24px;
         height: 24px;

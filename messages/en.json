@@ -6,18 +6,18 @@
 
     "an_error_occurred": "An error has occurred",
 
-    "go_home": "Go home",
+    "go_home": "Go to Homepage",
 
     "register_username_required": "Username is required",
     "register_username_minimum_length": "Username must be at least 3 characters",
     "register_username_maximum_length": "Username can't be longer than 16 characters",
 
-    "register_email_required":  "Email is required",
+    "register_email_required": "Email is required",
     "register_email_max_length": "Email can't be longer than 100 characters",
-    "register_password_required":  "Password is required",
+    "register_password_required": "Password is required",
     "register_password_length": "Password must be 64 characters",
-    "register_repeat_required":  "Please repeat the password",
-    "register_terms_required":  "Please accept the terms of service",
+    "register_repeat_required": "Please repeat the password",
+    "register_terms_required": "Please accept the terms of service",
 
     "register_tag_username": "Username",
     "register_tag_email": "Email",
@@ -35,12 +35,25 @@
     "undefined_database_error": "An error has occurred while processing this request",
 
     "verify_account_title": "Thanks for registering!",
+    "verify_account_subtitle": "A confirmation message has been sent to your email address.",
+    "verify_account_confirm_username_title": "Username:",
     "verify_account_confirm_username": "Your account ᛟ has been registered",
+    "verify_account_confirm_email_title": "Email:",
     "verify_account_confirm_email": "Please activate your account by following the link in your inbox at ᛟ",
 
     "account_verification_success": "Your accunt has been verified, please wait while we redirect you.",
     "account_verification_timeout": "Your verification token has timed out",
+
     "resend_verification_email": "Resend verification email",
 
-    "malformed_request": "Missing parameters"
+    "malformed_request": "Missing parameters",
+
+    "email_confirmation_body_logo_alt": "Gavel Logo",
+    "email_confirmation_body_title": "Welcome to GAVEL",
+    "email_confirmation_body_subtitle": "Your solution for Engineering Training",
+    "email_confirmation_body_first_paragraph": "Thank you very much for starting your subscription, with this you've taken your first step into upgrading your classroom experience.",
+    "email_confirmation_body_second_paragraph": "To continue please confirm your email with the link below",
+    "email_confirmation_body_cta_paragraph": "Click the link below to start your subscription",
+    "email_confirmation_body_cta_button": "VERIFY EMAIL",
+    "email_confirmation_body_footer_text": "This email was sent by Gavel, Inc. If you didn't sign up for this service, please disregard this email. For any questions, please contact "
 }

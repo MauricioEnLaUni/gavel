@@ -10,8 +10,6 @@ export type AppCache = {
     restrictedUsers: Set<string>;
 };
 
-export async function initAuthCache() {
-
-}
+export async function initAuthCache() {}
 
 export const authCache = writable<AppCache | null>(null);

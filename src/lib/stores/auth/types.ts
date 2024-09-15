@@ -7,7 +7,7 @@ export type AppSession = {
     period: {
         created: Date;
         expired: Date | null;
-    }
+    };
 
     ip: string | undefined | null;
     userAgent: string | undefined | null;

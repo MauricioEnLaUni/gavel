@@ -19,7 +19,7 @@
     <h2 class="mt-4 text-2xl text-primary-content">{title}</h2>
     <p class="text-muted-foreground mt-2">{m.an_error_occurred()}</p>
     <a
-        class="mt-8 bg-accent hover:bg-foreground font-bold py-2 px-4 rounded flex gap-x-4"
+        class="hover:bg-foreground mt-8 flex gap-x-4 rounded bg-accent px-4 py-2 font-bold"
         href="/">
         <Icon {icon} />
         {m.go_home()}
